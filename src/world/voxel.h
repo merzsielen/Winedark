@@ -60,9 +60,9 @@ namespace Winedark
 		/*--------------------------------------------------------------*/
 		unsigned int					i, x, y, z;
 
-		const static unsigned int		width = 16;
-		const static unsigned int		height = 16;
-		const static unsigned int		depth = 16;
+		const static unsigned int		width = 10;
+		const static unsigned int		height = 10;
+		const static unsigned int		depth = 10;
 
 		/*--------------------------------------------------------------*/
 		/* Contents                                                     */
@@ -125,7 +125,7 @@ namespace Winedark
 			These values should always be odd.
 		*/
 		const static unsigned int		width = 3;
-		const static unsigned int		height = 1;
+		const static unsigned int		height = 3;
 		const static unsigned int		depth = 3;
 
 		static constexpr float			voxelSize = 1.0f;
