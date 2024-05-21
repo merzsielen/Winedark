@@ -56,13 +56,24 @@ namespace Winedark
 	struct Chunk
 	{
 		/*--------------------------------------------------------------*/
+		/* Rendering                                                    */
+		/*--------------------------------------------------------------*/
+		GLuint							vao;
+		GLuint							vbo;
+
+		unsigned int					numTris;
+		std::vector<Triangle>			triangles;
+
+		/*--------------------------------------------------------------*/
 		/* Parameters                                                   */
 		/*--------------------------------------------------------------*/
 		unsigned int					i, x, y, z;
 
-		const static unsigned int		width = 10;
-		const static unsigned int		height = 10;
-		const static unsigned int		depth = 10;
+		const static unsigned int		width = 20;
+		const static unsigned int		height = 20;
+		const static unsigned int		depth = 20;
+
+		const static unsigned int		maxTris = (width * height * depth) * 6;
 
 		/*--------------------------------------------------------------*/
 		/* Contents                                                     */
@@ -85,25 +96,6 @@ namespace Winedark
 		/* Constructor & Deconstructor                                  */
 		/*--------------------------------------------------------------*/
 		Chunk(unsigned int i, unsigned int x, unsigned int y, unsigned int z);
-
-	};
-
-	/*------------------------------------------------------------------*/
-	/* Batch                                                            */
-	/*------------------------------------------------------------------*/
-	/*
-		A "batch" contains all the triangles that we
-		can fit in a single draw call.
-	*/
-	struct Batch
-	{
-		const static unsigned int		maxTris = 20000;
-
-		GLuint							vao;
-		GLuint							vbo;
-
-		unsigned int					numTris;
-		Triangle						triangles[maxTris];
 	};
 
 	/*------------------------------------------------------------------*/
@@ -124,16 +116,11 @@ namespace Winedark
 		/*
 			These values should always be odd.
 		*/
-		const static unsigned int		width = 3;
+		const static unsigned int		width = 7;
 		const static unsigned int		height = 3;
-		const static unsigned int		depth = 3;
+		const static unsigned int		depth = 7;
 
 		static constexpr float			voxelSize = 1.0f;
-
-		/*--------------------------------------------------------------*/
-		/* Batches                                                      */
-		/*--------------------------------------------------------------*/
-		std::vector<Batch>				batches;
 
 		/*--------------------------------------------------------------*/
 		/* Chunks                                                       */
@@ -159,12 +146,13 @@ namespace Winedark
 			across multiple voxels to form the minimum number
 			of triangles.
 		*/
-		std::vector<Triangle>			SweepFace(Face face);
+		// std::vector<Triangle>			SweepFace(Face face);
+		void								SweepFace(Face face);
 
 		/*--------------------------------------------------------------*/
 		/* Rendering Functions                                          */
 		/*--------------------------------------------------------------*/
-		void							GenerateBatches();
+		void							GenerateMeshes();
 		void							Render();
 
 		/*--------------------------------------------------------------*/
