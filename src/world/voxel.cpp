@@ -390,7 +390,7 @@ namespace Winedark
 
 				// Temporarily (hopefully), we're just gonna give each
 				// face its own mesh.
-				glm::vec3 position = glm::vec3(vx * voxelSize, vy * voxelSize, vz * voxelSize);
+				glm::vec3 position = glm::vec3(vx * voxelSize, vy * voxelSize, vz * -voxelSize);
 
 				glm::vec4 color = glm::vec4(rand() % 100 / 100.0f, rand() % 100 / 100.0f, rand() % 100 / 100.0f, 1.0f);
 
@@ -406,7 +406,7 @@ namespace Winedark
 					float x2 = position.x + halfWidth;
 					float y1 = position.y - halfWidth;
 					float y2 = position.y + halfWidth;
-					float z1 = position.z - halfWidth;
+					float z1 = position.z + halfWidth;
 
 					a = { x1, y1, z1, color.r, color.g, color.b, color.a };
 					b = { x1, y2, z1, color.r, color.g, color.b, color.a };
@@ -421,7 +421,7 @@ namespace Winedark
 					float x2 = position.x - halfWidth;
 					float y1 = position.y + halfWidth;
 					float y2 = position.y - halfWidth;
-					float z1 = position.z + halfWidth;
+					float z1 = position.z - halfWidth;
 
 					a = { x1, y1, z1, color.r, color.g, color.b, color.a };
 					b = { x1, y2, z1, color.r, color.g, color.b, color.a };

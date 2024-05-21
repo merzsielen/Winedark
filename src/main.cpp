@@ -80,9 +80,9 @@ void main()
 	Winedark::Quaternion yRot = { (float)cos(s), 0.0f, (float)sin(s), 0.0f };
 	float t = atanf(1 / sqrt(2.0)) / 2.0f;
 	Winedark::Quaternion xRot = { -(float)cos(t), (float)sin(t), 0.0f, 0.0f };
-	// Winedark::Quaternion iso = yRot * xRot;
 
-	Winedark::Camera* camera = new Winedark::Camera({ 0, 0, 0 }, Winedark::NormalizeQuaternion(iden * (yRot * xRot)), 0.01f, window);
+	Winedark::Camera* camera = new Winedark::Camera({ 0, 0, 0 }, Winedark::NormalizeQuaternion(iden * yRot * xRot), 0.01f, window);
+	// Winedark::Camera* camera = new Winedark::Camera({ 0, 0, 0 }, Winedark::NormalizeQuaternion(iden), 0.01f, window);
 	Winedark::Renderer* renderer = new Winedark::Renderer(camera);
 	Winedark::Plane* plane = new Winedark::Plane();
 
