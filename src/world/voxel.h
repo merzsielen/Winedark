@@ -116,9 +116,9 @@ namespace Winedark
 		/*
 			These values should always be odd.
 		*/
-		const static unsigned int		width = 7;
+		const static unsigned int		width = 3;
 		const static unsigned int		height = 3;
-		const static unsigned int		depth = 7;
+		const static unsigned int		depth = 3;
 
 		static constexpr float			voxelSize = 1.0f;
 
@@ -146,7 +146,6 @@ namespace Winedark
 			across multiple voxels to form the minimum number
 			of triangles.
 		*/
-		// std::vector<Triangle>			SweepFace(Face face);
 		void								SweepFace(Face face);
 
 		/*--------------------------------------------------------------*/

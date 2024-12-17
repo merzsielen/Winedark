@@ -134,8 +134,6 @@ namespace Winedark
 
 		this->numTris = 0;
 
-		srand(time(NULL));
-
 		/*-------------------------------------------------*/
 		/* Test Tile Setup                                 */
 		/*-------------------------------------------------*/
@@ -143,7 +141,7 @@ namespace Winedark
 		{
 			int r = rand() % 100 + 1;
 
-			if (r > 0) voxels[i] = { (unsigned char)0, (unsigned char)0, 1 };
+			if (r > 5) voxels[i] = { (unsigned char)0, (unsigned char)0, 1 };
 			else voxels[i] = { (unsigned char)0, (unsigned char)0, 0 };
 		}
 
@@ -534,13 +532,8 @@ namespace Winedark
 				chunk->numTris += 2;
 				chunk->triangles.push_back({ a, b, d });
 				chunk->triangles.push_back({ b, c, d });
-
-				/*triangles.push_back({ a, b, d });
-				triangles.push_back({ b, c, d });*/
 			}
 		}
-
-		// return triangles;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -550,127 +543,13 @@ namespace Winedark
 	{
 		// Now, we sweep through all six faces of the plane
 		// and construct our triangles.
-		/*std::vector<Triangle> fronts = SweepFace(Face::front);
-		std::vector<Triangle> backs = SweepFace(Face::back);
-		std::vector<Triangle> lefts = SweepFace(Face::left);
-		std::vector<Triangle> rights = SweepFace(Face::right);
-		std::vector<Triangle> tops = SweepFace(Face::top);
-		std::vector<Triangle> bottoms = SweepFace(Face::bottom);*/
+
 		SweepFace(Face::front);
 		SweepFace(Face::back);
 		SweepFace(Face::left);
 		SweepFace(Face::right);
 		SweepFace(Face::top);
 		SweepFace(Face::bottom);
-
-		// Next we reserve the number of batches we'll need.
-
-		/*unsigned int n = fronts.size() + backs.size()
-						+ lefts.size() + rights.size()
-						+ tops.size() + bottoms.size();
-
-		std::vector<Triangle> triangles;
-		triangles.reserve(n);
-
-		unsigned int offset = 0;*/
-
-		/*for (int i = 0; i < fronts.size(); i++) triangles[offset + i] = fronts[i];
-		offset += fronts.size();
-
-		for (int i = 0; i < backs.size(); i++) triangles[offset + i] = backs[i];
-		offset += backs.size();
-
-		for (int i = 0; i < lefts.size(); i++) triangles[offset + i] = lefts[i];
-		offset += lefts.size();
-
-		for (int i = 0; i < rights.size(); i++) triangles[offset + i] = rights[i];
-		offset += rights.size();
-
-		for (int i = 0; i < tops.size(); i++) triangles[offset + i] = tops[i];
-		offset += tops.size();
-
-		for (int i = 0; i < bottoms.size(); i++) triangles[offset + i] = bottoms[i];
-		offset += bottoms.size();*/
-
-		//std::copy(fronts.begin(), fronts.end(), triangles.begin() + offset);
-		//offset += fronts.size();
-
-		//std::copy(backs.begin(), backs.end(), triangles.begin() + offset);
-		//offset += backs.size();
-
-		//std::copy(lefts.begin(), lefts.end(), triangles.begin() + offset);
-		//offset += lefts.size();
-
-		//std::copy(rights.begin(), rights.end(), triangles.begin() + offset);
-		//offset += rights.size();
-
-		//std::copy(tops.begin(), tops.end(), triangles.begin() + offset);
-		//offset += tops.size();
-
-		//std::copy(bottoms.begin(), bottoms.end(), triangles.begin() + offset);
-		//offset += bottoms.size();
-
-		//unsigned int numBatches = 1 + (n / Batch::maxTris);
-
-		//batches.reserve(numBatches);
-
-		//unsigned int filled = 0;
-
-		//for (int i = 0; i < numBatches; i++)
-		//{
-		//	// And then we go through and fill the batches with
-		//	// our triangles.
-
-		//	Batch* b = &batches[i];
-		//	b->numTris = std::min(n - filled, Batch::maxTris);
-		//	
-		//	for (int j = 0; j < b->numTris; j++)
-		//	{
-		//		b->triangles[j] = triangles[j + filled];
-		//	}
-		//	// std::copy(triangles.begin() + filled, triangles.begin() + filled + b->numTris, b->triangles);
-		//	filled += b->numTris;
-
-		//	// And we also have to set up the vertex array
-		//	// objects and all that jazz.
-
-		//	GLuint ibo;
-
-		//	glGenVertexArrays(1, &b->vao);
-		//	glBindVertexArray(b->vao);
-
-		//	glGenBuffers(1, &b->vbo);
-		//	glBindBuffer(GL_ARRAY_BUFFER, b->vbo);
-
-		//	glGenBuffers(1, &ibo);
-		//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-		//	glBufferData(GL_ARRAY_BUFFER, b->numTris * sizeof(Triangle), &b->triangles[0], GL_DYNAMIC_DRAW);
-
-		//	// Coordinates
-		//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-		//	glEnableVertexAttribArray(0);
-
-		//	// Color
-		//	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, r));
-		//	glEnableVertexAttribArray(1);
-
-		//	unsigned int indices[Batch::maxTris * 3];
-		//	for (int i = 0; i < Batch::maxTris; i++)
-		//	{
-		//		const int offset = 3 * i;
-
-		//		indices[offset + 0] = offset + 0;
-		//		indices[offset + 1] = offset + 1;
-		//		indices[offset + 2] = offset + 2;
-		//	}
-
-		//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		//	glBindVertexArray(0);
-		//	glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		//}
 
 		for (int i = 0; i < (width * height * depth); i++)
 		{
@@ -692,19 +571,6 @@ namespace Winedark
 		/*
 			Here, we run through each batch in turn.
 		*/
-		//for (int i = 0; i < batches.capacity(); i++)
-		//{
-		//	Batch* b = &batches[i];
-
-		//	// We must bind the associated arrays for each batch.
-		//	glBindVertexArray(b->vao);
-		//	glBindBuffer(GL_ARRAY_BUFFER, b->vbo);
-
-		//	// And then call our draw call.
-		//	glDrawElements(GL_TRIANGLES, b->numTris * 3, GL_UNSIGNED_INT, nullptr);
-
-		//	// The renderer's Render() function handles the unbinding.
-		//}
 
 		for (int i = 0; i < (width * height * depth); i++)
 		{
@@ -722,6 +588,8 @@ namespace Winedark
 	/*--------------------------------------------------------------*/
 	Plane::Plane()
 	{
+		srand(time(NULL));
+
 		unsigned int size = width * height * depth;
 
 		for (int i = 0; i < size; i++)
