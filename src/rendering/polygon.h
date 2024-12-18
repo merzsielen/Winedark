@@ -19,6 +19,13 @@ namespace Winedark
 		float	g;
 		float	b;
 		float	a;
+
+		/*-----------------------*/
+		/* Texture               */
+		/*-----------------------*/
+		float	u;
+		float	v;
+		float	t;
 	};
 
 	struct Triangle

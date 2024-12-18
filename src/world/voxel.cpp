@@ -141,8 +141,9 @@ namespace Winedark
 		{
 			int r = rand() % 100 + 1;
 
-			if (r > 5) voxels[i] = { (unsigned char)0, (unsigned char)0, 1 };
-			else voxels[i] = { (unsigned char)0, (unsigned char)0, 0 };
+			voxels[i] = { (unsigned char)0, (unsigned char)0, 1 };
+			// if (r > 5) voxels[i] = { (unsigned char)0, (unsigned char)0, 1 };
+			// else voxels[i] = { (unsigned char)0, (unsigned char)0, 0 };
 		}
 
 		/*-------------------------------------------------*/
