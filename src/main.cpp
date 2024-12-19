@@ -8,8 +8,11 @@
 #include <iostream>
 #include <corecrt_math_defines.h>
 
-#include "world/voxel.h"
-#include "rendering/renderer.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+
+#include "world/octree.h"
 
 #define VERSION 0.01
 
@@ -75,17 +78,7 @@ void main()
 		Now we're going to fire up rendering:
 		camera, renderer, etc.
 	*/
-	Winedark::Quaternion iden = { 1.0f, 0.0f, 0.0f, 0.0f };
-	float s = M_PI / 8.0f;
-	Winedark::Quaternion yRot = { (float)cos(s), 0.0f, (float)sin(s), 0.0f };
-	float t = atanf(1 / sqrt(2.0)) / 2.0f;
-	Winedark::Quaternion xRot = { -(float)cos(t), (float)sin(t), 0.0f, 0.0f };
-	Winedark::Quaternion iso = yRot * xRot;
-	Winedark::Quaternion rog = { -(float)cos(s), (float)sin(s), 0.0f, 0.0f };
-
-	Winedark::Camera* camera = new Winedark::Camera({ 0, 0, 0 }, Winedark::NormalizeQuaternion(iden * rog), 0.01f, window);
-	Winedark::Renderer* renderer = new Winedark::Renderer(camera);
-	Winedark::Plane* plane = new Winedark::Plane();
+	Winedark::World::Octree* octree = new Winedark::World::Octree(256);
 
 	/*
 		And now we can run the loop.
@@ -110,9 +103,8 @@ void main()
 			frameCount = 0;
 		}
 
-		camera->Update(deltaTime);
-
-		renderer->Render(plane);
+		// ...
+		octree->Update();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -120,8 +112,6 @@ void main()
 
 	std::cout << "Shutting down Winedark. Have a wonderful day!" << std::endl;
 
-	delete plane;
-	delete renderer;
-	delete camera;
-
+	delete octree;
+	// delete ...
 }

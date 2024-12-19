@@ -10,21 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(BASE_SRCS
-    "src/rendering/camera.cpp"
-    "src/rendering/camera.h"
-    "src/rendering/polygon.h"
-    "src/rendering/renderer.cpp"
-    "src/rendering/renderer.h"
-    "src/rendering/shader.cpp"
-    "src/rendering/shader.h"
-    "src/rendering/texture.cpp"
-    "src/rendering/texture.h"
-    "src/rendering/archtexture.h"
-    "src/utility/geometry.cpp"
-    "src/utility/geometry.h"
-    "src/utility/settings.h"
-    "src/world/voxel.cpp"
-    "src/world/voxel.h"
+    "src/world/octree.cpp"
+    "src/world/octree.h"
     "src/main.cpp"
     )
 
