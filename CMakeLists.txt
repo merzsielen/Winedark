@@ -1,7 +1,4 @@
-﻿# CMakeList.txt : CMake project for Winedark, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.22)
+﻿cmake_minimum_required (VERSION 3.22)
 
 project (winedark LANGUAGES CXX)
 
@@ -10,12 +7,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(BASE_SRCS
+    "src/rendering/camera.cpp"
+    "src/rendering/camera.h"
+    "src/rendering/renderer.cpp"
+    "src/rendering/renderer.h"
+    "src/rendering/shader.cpp"
+    "src/rendering/shader.h"
+    "src/rendering/texture.cpp"
+    "src/rendering/texture.h"
+    "src/rendering/textureatlas.cpp"
+    "src/rendering/textureatlas.h"
+    "src/util/geometry.cpp"
+    "src/util/geometry.h"
     "src/world/octree.cpp"
     "src/world/octree.h"
     "src/main.cpp"
     )
 
-# Add source to this project's executable.
 add_executable (winedark ${BASE_SRCS})
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

@@ -12,7 +12,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "world/octree.h"
+#include "rendering/renderer.h"
 
 #define VERSION 0.01
 
@@ -78,7 +78,9 @@ void main()
 		Now we're going to fire up rendering:
 		camera, renderer, etc.
 	*/
-	Winedark::World::Octree* octree = new Winedark::World::Octree(256);
+	Winedark::Octree* octree = new Winedark::Octree(256);
+	Winedark::Camera* camera = new Winedark::Camera(1.0f, { 0, 0, 0 }, { 1, 0, 0, 0 }, 1600, 600);
+	// Winedark::Renderer* renderer = new Winedark::Renderer(camera, octree);
 
 	/*
 		And now we can run the loop.
@@ -105,6 +107,7 @@ void main()
 
 		// ...
 		octree->Update();
+		// renderer->Render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -113,5 +116,6 @@ void main()
 	std::cout << "Shutting down Winedark. Have a wonderful day!" << std::endl;
 
 	delete octree;
-	// delete ...
+	delete camera;
+	// delete renderer;
 }

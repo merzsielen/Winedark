@@ -5,7 +5,7 @@
 #include <time.h>
 #include <iostream>
 
-namespace Winedark::World
+namespace Winedark
 {
 	/*----------------------------------------------------------------------------------------------*/
 	/* -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
@@ -300,6 +300,7 @@ namespace Winedark::World
 		this->nVoxels = 0;
 		this->nLayers = 1 + log2(size);
 		this->cursor = 1;
+		this->ssbo = 0;
 
 		double h = (size - 0.5) / 2.0;
 		this->cx = h;
@@ -347,7 +348,7 @@ namespace Winedark::World
 				{
 					int r = rand() % 100 + 1;
 
-					if (r > 90)
+					if (r > 50)
 					{
 						AddVoxel(x, y, z, 1);
 					}

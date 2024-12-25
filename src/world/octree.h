@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 #include <glad/glad.h>
 
-namespace Winedark::World
+namespace Winedark
 {
 	/*----------------------------------------------------------------------------------------------*/
 	/* -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
@@ -26,8 +26,10 @@ namespace Winedark::World
 	*/
 	struct Voxel
 	{
-		uint16_t type;
-		int32_t children;
+		/*uint16_t type;
+		int32_t children;*/
+		unsigned int	type;
+		int				children;
 	};
 
 	/*-----------------------------------------------------------------------*/
