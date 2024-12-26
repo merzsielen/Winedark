@@ -36,7 +36,7 @@ add_custom_target(copy_assets
 
 add_dependencies(winedark copy_assets)
 
-add_subdirectory(libs/freetype-2.12.1)
+# add_subdirectory(libs/freetype-2.12.1)
 add_subdirectory(libs/glfw-3.3.8)
 add_subdirectory(libs/glad)
 add_subdirectory(libs/glm-0.9.9.8)
@@ -46,4 +46,4 @@ if(NOT DEFINED CMAKE_SUPPRESS_DEVELOPER_WARNINGS)
      set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS 1 CACHE INTERNAL "No dev warnings")
 endif()
 
-target_link_libraries(winedark freetype glfw glad glm stb_image)
+target_link_libraries(winedark glfw glad glm stb_image) # freetype)

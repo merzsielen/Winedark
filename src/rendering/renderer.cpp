@@ -21,7 +21,9 @@ namespace Winedark
 	/*-------------------------------------------------------*/
 	/* Constructor											 */
 	/*-------------------------------------------------------*/
-	Renderer::Renderer(Camera* camera, Octree* octree)
+	Renderer::Renderer(Camera* camera, Octree* octree) :
+		sceneShader("/assets/shaders/base.vert", "/assets/shaders/base.frag"),
+		computeShader("/asset/shaders/base.compute")
 	{
 		this->camera = camera;
 		this->octree = octree;
