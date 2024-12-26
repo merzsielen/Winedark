@@ -41,6 +41,16 @@ namespace Winedark
 		return 0;
 	}
 
+	/*-----------------------------------------------------*/
+	/* Flag Functions									   */
+	/*-----------------------------------------------------*/
+	bool Octree::CheckChanged()
+	{
+		bool c = changed;
+		changed = false;
+		return c;
+	}
+
 	/*---------------------------------------------------*/
 	/* General Functions								 */
 	/*---------------------------------------------------*/
@@ -55,9 +65,9 @@ namespace Winedark
 		{
 			updated = false;
 			WriteBuffer();
+			HasChanged();
 		}
 	}
-
 
 	/* WriteBuffer --------------------------------------*/
 	/*
@@ -68,7 +78,7 @@ namespace Winedark
 	{
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, nVoxels * sizeof(Voxel), voxels);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
 	/*---------------------------------------------------*/
@@ -121,26 +131,22 @@ namespace Winedark
 			if (target->children < 0)
 			{
 				target->children = cursor;
-				for (int i = 0; i < 8; i++)
-				{
-					voxels[cursor] = { 0, -1 };
-					cursor++;
-				}
+				cursor += 8;
 			}
 
 			/*
 				Now we grab the next target
 				(which may be our final true
-				target, if s == 2).
+				target, if s == 1).
 			*/
 			target = &voxels[target->children + octant];
 
 			/*
-				If our current size is 2 then we just need
+				If our current size is 1 then we just need
 				to set the child of the current target to
 				the correct type and break.
 			*/
-			if (s == 2)
+			if (s == 1)
 			{
 				target->type = t;
 				break;
@@ -151,7 +157,7 @@ namespace Winedark
 				our oct centerpoint. This 
 			*/
 			glm::vec3 o = offsets[octant] * (float)s;
-			c += 0;
+			c += o;
 			s /= 2;
 		}
 	}
@@ -277,6 +283,21 @@ namespace Winedark
 		}
 	}
 
+	/* CountTypedVoxels ---------------------------------*/
+	/*
+		Counts the number of voxels whose types aren't
+		0.
+	*/
+	unsigned int Octree::CountTypedVoxels()
+	{
+		unsigned int n = 0;
+		for (int i = 1; i < nVoxels; i++)
+		{
+			if (voxels[i].type > 0) n++;
+		}
+		return n;
+	}
+
 	/*---------------------------------------------------*/
 	/* Constructor										 */
 	/*---------------------------------------------------*/
@@ -295,7 +316,8 @@ namespace Winedark
 		srand(time(NULL));
 
 		// First, we set up some preliminary variables.
-		this->updated = 0;
+		this->changed = false;
+		this->updated = false;
 		this->size = size;
 		this->nVoxels = 0;
 		this->nLayers = 1 + log2(size);
@@ -321,7 +343,8 @@ namespace Winedark
 		if (voxels == NULL) return;
 
 		// And we add the topmost voxel.
-		voxels[0] = { 0, -1 };
+		voxels[0] = { nVoxels, -1 };
+		for (int i = 1; i < nVoxels; i++) voxels[i] = { 0, -1 };
 
 		// And for utility purposes we're gonna store
 		// some values for later.
@@ -363,9 +386,10 @@ namespace Winedark
 		ssbo = 0;
 		glGenBuffers(1, &ssbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, nVoxels * sizeof(Voxel), voxels, GL_READ_WRITE);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, nVoxels * sizeof(Voxel), nullptr, GL_DYNAMIC_COPY);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
 	/*---------------------------------------------------*/
@@ -380,6 +404,7 @@ namespace Winedark
 	*/
 	Octree::~Octree()
 	{
+		glDeleteBuffers(1, &ssbo);
 		free(voxels);
 	}
 }

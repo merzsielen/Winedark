@@ -19,32 +19,32 @@ namespace Winedark
 		These utility functions just set values in the shader on the GPU.
 		They're all variations on the same formula.
 	*/
-	void SetBool(GLuint id, const std::string& name, bool value) const
+	void SetBool(GLuint id, const std::string& name, bool value)
 	{
 		glUniform1i(glGetUniformLocation(id, name.c_str()), (int)value);
 	}
 
-	void SetInt(GLuint id, const std::string& name, int value) const
+	void SetInt(GLuint id, const std::string& name, int value)
 	{
 		glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 	}
 
-	void SetFloat(GLuint id, const std::string& name, float value) const
+	void SetFloat(GLuint id, const std::string& name, float value)
 	{
 		glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 	}
 
-	void SetMatrix(GLuint id, const std::string& name, const glm::mat4& value) const
+	void SetMatrix(GLuint id, const std::string& name, const glm::mat4& value)
 	{
 		glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 	}
 
-	void SetVector2(GLuint id, const std::string& name, const glm::vec2& value) const
+	void SetVector2(GLuint id, const std::string& name, const glm::vec2& value)
 	{
 		glUniform2fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(value));
 	}
 
-	void SetVector3(GLuint id, const std::string& name, const glm::vec3& value) const
+	void SetVector3(GLuint id, const std::string& name, const glm::vec3& value)
 	{
 		glUniform3fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(value));
 	}
@@ -60,7 +60,7 @@ namespace Winedark
 		Input: Shader path
 		Output: Shader code
 	*/
-	const char* ReadCode(const char* path)
+	std::string ReadCode(const char* path)
 	{
 		std::string code;
 		std::ifstream file;
@@ -80,7 +80,7 @@ namespace Winedark
 			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ in " << path << std::endl;
 		}
 
-		return code.c_str();
+		return code;
 	}
 
 	/* CompileShader ----------------------------------------*/
@@ -92,13 +92,15 @@ namespace Winedark
 		Input: Shader type & code
 		Output: Shader ID
 	*/
-	GLuint CompileShader(GLenum type, const char* code)
+	GLuint CompileShader(GLenum type, std::string code)
 	{
+		const char* c = code.c_str();
+
 		int success;
 		char infoLog[512];
 
 		GLuint id = glCreateShader(type);
-		glShaderSource(id, 1, &code, NULL);
+		glShaderSource(id, 1, &c, NULL);
 		glCompileShader(id);
 
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
@@ -152,7 +154,7 @@ namespace Winedark
 	*/
 	void Shader::Use()
 	{
-		glUseProgram(ID);
+		glUseProgram(id);
 	}
 
 	/*-------------------------------------------------------*/
@@ -166,14 +168,14 @@ namespace Winedark
 		Input: Vertex & Fragment Shader Code Path
 		Output: (Shader Program)
 	*/
-	Shader::Shader(const char* vertexPath, const char* fragmentPath)
+	Shader::Shader(std::string vertexPath, std::string fragmentPath)
 	{
 		/*
 			First, we read in the code from the two shader
 			files and compile them.
 		*/
-		GLuint vertex = CompileShader(GL_VERTEX_SHADER, ReadCode(vertexPath));
-		GLuint fragment = CompileShader(GL_FRAGMENT_SHADER, ReadCode(fragmentPath));
+		GLuint vertex = CompileShader(GL_VERTEX_SHADER, ReadCode(vertexPath.c_str()));
+		GLuint fragment = CompileShader(GL_FRAGMENT_SHADER, ReadCode(fragmentPath.c_str()));
 
 		/*
 			Next, we create the shader program,
@@ -195,13 +197,13 @@ namespace Winedark
 		Input: Compute Shader Code Path
 		Output: (Shader Program)
 	*/
-	Shader::Shader(const char* computePath)
+	Shader::Shader(std::string computePath)
 	{
 		/*
 			First, we read in the code and compile the
 			shader.
 		*/
-		GLuint compute = CompileShader(GL_COMPUTE_SHADER, ReadCode(computePath));
+		GLuint compute = CompileShader(GL_COMPUTE_SHADER, ReadCode(computePath.c_str()));
 
 		/*
 			Next, we create the program and attach the

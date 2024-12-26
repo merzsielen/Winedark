@@ -19,6 +19,7 @@ set(BASE_SRCS
     "src/rendering/textureatlas.h"
     "src/util/geometry.cpp"
     "src/util/geometry.h"
+    "src/util/polygons.h"
     "src/world/octree.cpp"
     "src/world/octree.h"
     "src/main.cpp"

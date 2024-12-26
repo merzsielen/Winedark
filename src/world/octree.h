@@ -28,8 +28,9 @@ namespace Winedark
 	{
 		/*uint16_t type;
 		int32_t children;*/
-		unsigned int	type;
-		int				children;
+
+		uint32_t		type;
+		int32_t			children;
 	};
 
 	/*-----------------------------------------------------------------------*/
@@ -59,6 +60,11 @@ namespace Winedark
 	{
 	private:
 		/*-----------------------------------------------------*/
+		/* Flags											   */
+		/*-----------------------------------------------------*/
+		bool					changed;
+
+		/*-----------------------------------------------------*/
 		/* Buffer											   */
 		/*-----------------------------------------------------*/
 		GLuint					ssbo;
@@ -77,10 +83,11 @@ namespace Winedark
 		/*-----------------------------------------------------*/
 		/* Utility											   */
 		/*-----------------------------------------------------*/
+		void					HasChanged() { changed = true; }
 		std::vector<glm::vec3>	offsets;
 
 		/*-----------------------------------------------------*/
-		/* Byffer Functions									   */
+		/* Buffer Functions									   */
 		/*-----------------------------------------------------*/
 		void					WriteBuffer();
 
@@ -89,12 +96,19 @@ namespace Winedark
 		/* General Functions								   */
 		/*-----------------------------------------------------*/
 		void					Update();
+		GLuint					GetSSBO() { return ssbo; }
+
+		/*-----------------------------------------------------*/
+		/* Flag Functions									   */
+		/*-----------------------------------------------------*/
+		bool					CheckChanged();
 
 		/*-----------------------------------------------------*/
 		/* Voxel Functions									   */
 		/*-----------------------------------------------------*/
 		void					AddVoxel(unsigned int x, unsigned int y, unsigned int z, uint16_t t);
 		void					RemoveVoxel(unsigned int x, unsigned int y, unsigned int z);
+		unsigned int			CountTypedVoxels();
 
 		/*-----------------------------------------------------*/
 		/* Constructor & Deconstructor						   */

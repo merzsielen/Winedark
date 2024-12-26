@@ -71,16 +71,13 @@ void main()
 
 	glCullFace(GL_BACK);
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
 	/*
 		Now we're going to fire up rendering:
 		camera, renderer, etc.
 	*/
-	Winedark::Octree* octree = new Winedark::Octree(256);
-	Winedark::Camera* camera = new Winedark::Camera(1.0f, { 0, 0, 0 }, { 1, 0, 0, 0 }, 1600, 600);
-	// Winedark::Renderer* renderer = new Winedark::Renderer(camera, octree);
+	Winedark::Octree* octree = new Winedark::Octree(128);
+	Winedark::Camera* camera = new Winedark::Camera(1.0f, { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, 1600, 600, 0.01f, 10.0f);
+	Winedark::Renderer* renderer = new Winedark::Renderer(camera, octree);
 
 	/*
 		And now we can run the loop.
@@ -105,9 +102,12 @@ void main()
 			frameCount = 0;
 		}
 
-		// ...
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
 		octree->Update();
-		// renderer->Render();
+		camera->Update(window, deltaTime);
+		renderer->Render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -117,5 +117,5 @@ void main()
 
 	delete octree;
 	delete camera;
-	// delete renderer;
+	delete renderer;
 }

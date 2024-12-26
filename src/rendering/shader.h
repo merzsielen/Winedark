@@ -16,19 +16,19 @@ namespace Winedark
 	/*-----------------------------------------------------------------------*/
 	/* Utility Functions													 */
 	/*-----------------------------------------------------------------------*/
-	void SetBool(GLuint id, const std::string& name, bool value) const;
-	void SetUint(GLuint id, const std::string& name, unsigned int value) const;
-	void SetInt(GLuint id, const std::string& name, int value) const;
-	void SetFloat(GLuint id, const std::string& name, float value) const;
-	void SetMatrix(GLuint id, const std::string& name, const glm::mat4& value) const;
-	void SetVector2(GLuint id, const std::string& name, const glm::vec2& value) const;
-	void SetVector3(GLuint id, const std::string& name, const glm::vec3& value) const;
+	void SetBool(GLuint id, const std::string& name, bool value);
+	void SetUint(GLuint id, const std::string& name, unsigned int value);
+	void SetInt(GLuint id, const std::string& name, int value);
+	void SetFloat(GLuint id, const std::string& name, float value);
+	void SetMatrix(GLuint id, const std::string& name, const glm::mat4& value);
+	void SetVector2(GLuint id, const std::string& name, const glm::vec2& value);
+	void SetVector3(GLuint id, const std::string& name, const glm::vec3& value);
 
 	/*-----------------------------------------------------------------------*/
 	/* Compilation Functions												 */
 	/*-----------------------------------------------------------------------*/
-	const char* ReadCode(const char* path);
-	GLuint CompileShader(GLenum type, const char* code);
+	std::string ReadCode(const char* path);
+	GLuint CompileShader(GLenum type, std::string code);
 	GLuint CreateProgram(std::vector<GLuint> components);
 
 	/*-----------------------------------------------------------------------*/
@@ -56,8 +56,8 @@ namespace Winedark
 		/*-----------------------------------------------------*/
 		/* Constructors										   */
 		/*-----------------------------------------------------*/
-		Shader::Shader(const char* vertexPath, const char* fragmentPath);
-		Shader::Shader(const char* computePath);
+		Shader::Shader(std::string vertexPath, std::string fragmentPath);
+		Shader::Shader(std::string computePath);
 	};
 }
 
