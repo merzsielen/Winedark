@@ -25,7 +25,7 @@ namespace Winedark
 	/*-----------------------------------------------------*/
 	void Camera::UpdateView()
 	{
-		this->view = glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), { 0.0f, 1.0f, 0.0f });
+		this->view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), { 0.0f, 1.0f, 0.0f });
 	}
 
 	void Camera::UpdateProjection()
@@ -60,11 +60,27 @@ namespace Winedark
 		bool zoomIn = (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS);
 		bool zoomOut = ((glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) && !zoomIn);
 
-		if (moveUp) position.y += movementSpeed * zoom * dt;
-		else if (moveDown) position.y -= movementSpeed * zoom * dt;
+		if (moveUp)
+		{
+			position.y += movementSpeed * zoom * dt;
+			HasChanged();
+		}
+		else if (moveDown)
+		{
+			position.y -= movementSpeed * zoom * dt;
+			HasChanged();
+		}
 
-		if (moveRight) position.x += movementSpeed * zoom * dt;
-		else if (moveLeft) position.x -= movementSpeed * zoom * dt;
+		if (moveRight)
+		{
+			position.x += movementSpeed * zoom * dt;
+			HasChanged();
+		}
+		else if (moveLeft)
+		{
+			position.x -= movementSpeed * zoom * dt;
+			HasChanged();
+		}
 
 		if (zoomIn) zoom -= zoomSpeed * dt;
 		else if (zoomOut) zoom += zoomSpeed * dt;

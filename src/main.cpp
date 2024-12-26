@@ -75,8 +75,8 @@ void main()
 		Now we're going to fire up rendering:
 		camera, renderer, etc.
 	*/
-	Winedark::Octree* octree = new Winedark::Octree(128);
 	Winedark::Camera* camera = new Winedark::Camera(1.0f, { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, 1600, 600, 0.01f, 10.0f);
+	Winedark::Octree* octree = new Winedark::Octree(128, camera);
 	Winedark::Renderer* renderer = new Winedark::Renderer(camera, octree);
 
 	/*
@@ -115,7 +115,7 @@ void main()
 
 	std::cout << "Shutting down Winedark. Have a wonderful day!" << std::endl;
 
-	delete octree;
 	delete camera;
+	delete octree;
 	delete renderer;
 }

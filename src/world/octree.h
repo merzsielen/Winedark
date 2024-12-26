@@ -6,6 +6,8 @@
 #include <glm/vec3.hpp>
 #include <glad/glad.h>
 
+#include "../rendering/camera.h"
+
 namespace Winedark
 {
 	/*----------------------------------------------------------------------------------------------*/
@@ -31,6 +33,29 @@ namespace Winedark
 
 		uint32_t		type;
 		int32_t			children;
+	};
+
+	/*-----------------------------------------------------------------------*/
+	/* Buffer Data															 */
+	/*-----------------------------------------------------------------------*/
+	/*
+		Because certain information is necessary to perform the raycasts
+		in the compute shader, we have a neat little struct here to bundle
+		that up and make sending it to the GPU easier.
+	*/
+	struct BufferData
+	{
+		unsigned int	size;
+
+		unsigned int	viewWidth;
+		unsigned int	viewHeight;
+
+		glm::vec3		cameraPosition;
+		glm::vec3		cameraRight;
+		glm::vec3		cameraUp;
+		glm::vec3		cameraForward;
+
+		glm::vec3		centerPosition;
 	};
 
 	/*-----------------------------------------------------------------------*/
@@ -60,6 +85,11 @@ namespace Winedark
 	{
 	private:
 		/*-----------------------------------------------------*/
+		/* Camera											   */
+		/*-----------------------------------------------------*/
+		Camera*					camera;
+
+		/*-----------------------------------------------------*/
 		/* Flags											   */
 		/*-----------------------------------------------------*/
 		bool					changed;
@@ -73,7 +103,7 @@ namespace Winedark
 		/* Voxels											   */
 		/*-----------------------------------------------------*/
 		unsigned int			size;	// Must be multiple of 4.
-		double					cx, cy, cz;
+		glm::vec3				center;
 		Voxel*					voxels;
 		unsigned int			nLayers;
 		unsigned int			nVoxels;
@@ -113,7 +143,7 @@ namespace Winedark
 		/*-----------------------------------------------------*/
 		/* Constructor & Deconstructor						   */
 		/*-----------------------------------------------------*/
-		Octree(unsigned int size);
+		Octree(unsigned int size, Camera* camera);
 		~Octree();
 	};
 }

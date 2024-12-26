@@ -93,6 +93,7 @@ namespace Winedark
 		/*-----------------------------------------------------*/
 		glm::vec3			GetPosition() { return position; }
 		Quaternion			GetRotation() { return rotation; }
+		float				GetZoom() { return zoom; }
 
 		/*-----------------------------------------------------*/
 		/* Position & Rotation Functions					   */

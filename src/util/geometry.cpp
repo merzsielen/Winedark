@@ -139,7 +139,6 @@ namespace Winedark
 		return e;
 	}
 
-
 	glm::vec3 Rotate(glm::vec3 position, Quaternion q)
 	{
 		glm::mat3x3 mat = glm::mat3x3(1 - 2 * (q.y * q.y + q.z * q.z), 2 * (q.x * q.y - q.z * q.w), 2 * (q.x * q.z + q.y * q.w),

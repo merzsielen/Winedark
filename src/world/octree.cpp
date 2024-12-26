@@ -76,8 +76,20 @@ namespace Winedark
 	*/
 	void Octree::WriteBuffer()
 	{
+		Quaternion r = camera->GetRotation();
+		glm::vec3 right = Rotate({ 1.0, 0.0,0.0 }, r);
+		glm::vec3 up = Rotate({ 0.0, 1.0,0.0 }, r);
+		glm::vec3 forward = Rotate({ 0.0, 0.0, 1.0 }, r);
+
+		glm::vec3 pos = camera->GetPosition();
+		pos.z = -camera->GetZoom();
+
+		BufferData bd = { size, camera->GetWidth(), camera->GetHeight(),
+			camera->GetPosition(), right, up, forward, center };
+
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, nVoxels * sizeof(Voxel), voxels);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(BufferData), &bd);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), nVoxels * sizeof(Voxel), voxels);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
@@ -113,7 +125,7 @@ namespace Winedark
 		*/
 		Voxel* target = &voxels[0];
 		int s = size;
-		glm::vec3 c = { cx, cy, cz };
+		glm::vec3 c = center;
 
 		while (true)
 		{
@@ -198,7 +210,7 @@ namespace Winedark
 		Voxel* target = &voxels[0];
 		std::vector<Voxel*> branch = { target };
 		int s = size;
-		glm::vec3 c = { cx, cy, cz };
+		glm::vec3 c = center;
 
 		while (true)
 		{
@@ -226,15 +238,15 @@ namespace Winedark
 			/*
 				Now we grab the next target
 				(which may be our final true
-				target, if s == 2).
+				target, if s == 1).
 			*/
 			target = &voxels[target->children + octant];
 			branch.push_back(target);
 
 			/*
-				If our current size is 2 then we can break.
+				If our current size is 1 then we can break.
 			*/
-			if (s == 2) break;
+			if (s == 1) break;
 
 			/*
 				Now, we need to update the position of
@@ -285,8 +297,7 @@ namespace Winedark
 
 	/* CountTypedVoxels ---------------------------------*/
 	/*
-		Counts the number of voxels whose types aren't
-		0.
+		Counts the number of voxels whose types aren't 0.
 	*/
 	unsigned int Octree::CountTypedVoxels()
 	{
@@ -311,11 +322,13 @@ namespace Winedark
 		Input:		Size of loaded area (width / height / depth).
 		Output:		None
 	*/
-	Octree::Octree(unsigned int size)
+	Octree::Octree(unsigned int size, Camera* camera)
 	{
 		srand(time(NULL));
 
 		// First, we set up some preliminary variables.
+		this->camera = camera;
+
 		this->changed = false;
 		this->updated = false;
 		this->size = size;
@@ -325,9 +338,7 @@ namespace Winedark
 		this->ssbo = 0;
 
 		double h = (size - 0.5) / 2.0;
-		this->cx = h;
-		this->cy = h;
-		this->cz = h;
+		this->center = { h, h, h };
 
 		// Now we figure out the maximum number of voxels
 		// we might have.
@@ -342,9 +353,7 @@ namespace Winedark
 		// We'll check to see malloc worked fine.
 		if (voxels == NULL) return;
 
-		// And we add the topmost voxel.
-		voxels[0] = { nVoxels, -1 };
-		for (int i = 1; i < nVoxels; i++) voxels[i] = { 0, -1 };
+		for (int i = 0; i < nVoxels; i++) voxels[i] = { 0, -1 };
 
 		// And for utility purposes we're gonna store
 		// some values for later.
@@ -386,7 +395,7 @@ namespace Winedark
 		ssbo = 0;
 		glGenBuffers(1, &ssbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, nVoxels * sizeof(Voxel), nullptr, GL_DYNAMIC_COPY);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(BufferData) + (nVoxels * sizeof(Voxel)), nullptr, GL_DYNAMIC_COPY);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

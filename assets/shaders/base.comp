@@ -1,33 +1,267 @@
 #version 430 core
 
+// ------------------------------------------------------------------------- //
+// Citations																 //
+// ------------------------------------------------------------------------- //
+// For this implementation, we drew heavily from "Efficient Sparse Voxel
+// Octrees -- Analysis, Extensions, and Implementation" by Samuli Laine
+// and Tero Karras of the NVIDIA Research team (henceforth Laine & Karras
+// 2010).
+
+// ------------------------------------------------------------------------- //
+// Structs																	 //
+// ------------------------------------------------------------------------- //
+// ---------------------------------------------------------- //
+// Buffer Data												  //
+// ---------------------------------------------------------- //
+struct BufferData
+{
+	uint	size;
+
+	uint	viewWidth;
+	uint	viewHeight;
+
+	vec3	cameraPosition;
+	vec3	cameraRight;
+	vec3	cameraUp;
+	vec3	cameraForward;
+
+	vec3	centerPosition;
+};
+
+// ---------------------------------------------------------- //
+// Voxel													  //
+// ---------------------------------------------------------- //
 struct Voxel
 {
 	uint	type;
 	int		children;
 };
 
+// ---------------------------------------------------------- //
+// Ray														  //
+// ---------------------------------------------------------- //
+struct Ray
+{
+	vec3	origin;
+	vec3	direction;
+	vec3	inverseDirection;
+};
+
+// ---------------------------------------------------------- //
+// Cube														  //
+// ---------------------------------------------------------- //
+struct Cube
+{
+	vec3	center;
+	float	size;
+};
+
+// ---------------------------------------------------------- //
+// Entry													  //
+// ---------------------------------------------------------- //
+struct Entry
+{
+	uint	index;
+	uint	octant;
+	Cube	cube;
+};
+
+// ------------------------------------------------------------------------- //
+// Input																	 //
+// ------------------------------------------------------------------------- //
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout (binding = 0, rgba32f) uniform image2D imgOutput;
 layout (std430, binding = 1) buffer voxelBuffer
 {
-	Voxel	voxels[];
+	BufferData	data;
+	Voxel		voxels[];
 };
 
-void main()
+// ------------------------------------------------------------------------- //
+// Functions																 //
+// ------------------------------------------------------------------------- //
+// ---------------------------------------------------------- //
+// Ray Generation											  //
+// ---------------------------------------------------------- //
+// Ray Origin ----------------------------------------------- //
+// Given the position and rotation of the camera, the position
+// of the center of the loaded octree and the offset of the
+// ray in question, we return the origin of the ray.
+vec3 RayOrigin(vec3 cameraPosition, vec3 cameraRight, vec3 cameraUp, vec3 centerPosition, vec2 offset)
 {
-	uint nVoxels = voxels[0].type;
+	vec3 d = (offset.x * cameraRight) + (offset.y * cameraUp);
+	return (cameraPosition + d) - centerPosition;
+}
+
+// Generate Ray --------------------------------------------- //
+// Given various data about the camera's position and rotation
+// and the position of the center of the octree and the offset
+// of the given pixel, we return a ray.
+Ray GenerateRay(vec3 cameraPosition, vec3 cameraRight, vec3 cameraUp, vec3 cameraForward, vec3 centerPosition, vec2 offset)
+{
+	vec3 o = RayOrigin(cameraPosition, cameraRight, cameraUp, centerPosition, offset);
+	vec3 d = cameraForward;
+	vec3 i = 1.0 / d;
+
+	return Ray(o, d, i);
+}
+
+// ---------------------------------------------------------- //
+// Center Translations										  //
+// ---------------------------------------------------------- //
+// OctantTranslation ---------------------------------------- //
+// Provides the proper translation for a child octant.
+vec3 OctantTranslation(uint octant, uint size)
+{
+	uint qs = size / 4;
+	if (octant == 0) return vec3(-qs, -qs, -qs);
+	if (octant == 1) return vec3(qs, -qs, -qs);
+	if (octant == 2) return vec3(-qs, qs, -qs);
+	if (octant == 3) return vec3(qs, qs, -qs);
+	if (octant == 4) return vec3(-qs, -qs, qs);
+	if (octant == 5) return vec3(qs, -qs, qs);
+	if (octant == 6) return vec3(-qs, qs, qs);
+	if (octant == 7) return vec3(qs, qs, qs);
+}
+
+// ---------------------------------------------------------- //
+// Intersection Test										  //
+// ---------------------------------------------------------- //
+// Given a ray and a cube we calculate the far and near
+// intersections. If tNear > tFar, then there is no
+// intersection. Otherwise, there is.
+vec2 RayHitsCube(Ray ray, Cube cube)
+{
+	float halfSize = cube.size * 0.5;
+
+	vec3 cMin = vec3(cube.center.x - halfSize, cube.center.y - halfSize, cube.center.z - halfSize);
+	vec3 cMax = vec3(cube.center.x + halfSize, cube.center.y + halfSize, cube.center.z + halfSize);
+
+	vec3 tMin = (cMin - ray.origin) * ray.inverseDirection;
+	vec3 tMax = (cMax - ray.origin) * ray.inverseDirection;
+
+	vec3 t1 = min(tMin, tMax);
+	vec3 t2 = max(tMin, tMax);
+
+	float tNear = max(max(t1.x, t1.y), t1.z);
+	float tFar = min(min(t2.x, t2.y), t2.z);
+	
+	return vec2(tNear, tFar);
+}
+
+// ------------------------------------------------------------------------- //
+// Main																		 //
+// ------------------------------------------------------------------------- //
+void main()
+{ 
 	ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-	ivec4 color = ivec4(0.0, 0.0, 0.0, 1.0);
+	float x = float(gl_GlobalInvocationID.x);
+	float y = float(gl_GlobalInvocationID.y);
 
-	int i = coords.x + (coords.y * 1600);
+	float w = float(data.viewWidth);
+	float h = float(data.viewHeight);
 
-	if (voxels[i].type != 0)
+	vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+	vec2 offset = vec2(x - (w * 0.5), y - (h * 0.5));
+	Ray ray = GenerateRay(data.cameraPosition, data.cameraRight, data.cameraUp, data.cameraForward, data.centerPosition, offset);
+
+	// Okay, so we've got our ray. Now, we need to traverse the
+	// octree. For now, if we hit a leaf voxel, we set the color
+	// to white and return. Later, we'll have to find some way to
+	// sample the texture of the voxel we hit.
+
+	// We have to start at the highest level (the root) and then
+	// determine....
+	Entry stack[10];
+	uint stackCursor = 0;
+	uint bufferCursor = 0;
+	uint level = data.size;
+	vec3 center = vec3(level * 0.5, level * 0.5, level * 0.5);
+	
+	int numTests = 0;
+	int maxTests = 20;
+
+	while (numTests < maxTests)
 	{
-		color = ivec4(0.0, 0.0, 1.0, 1.0);
+		numTests++;
+		Voxel voxel = voxels[bufferCursor];
+		center = stack[stackCursor].cube.center + OctantTranslation(stack[stackCursor].octant, level);
+		Cube cube = Cube(center, level);
 
-		if (voxels[i].children != -1)
+		vec2 collision = RayHitsCube(ray, cube);
+
+		// If the ray has collided with the cube.
+		if (collision.x < collision.y)
 		{
-			color = ivec4(1.0, 0.0, 0.0, 1.0);
+			color = vec4(1.0, 1.0, 1.0, 1.0);
+			break;
+
+			// This means the ray passes through this
+			// voxel. We need to check if the voxel
+			// is a leaf node.
+
+			// If this is a leaf node and the type
+			// is opaque (which all non-zero leaves
+			// are for now), then we set the color to
+			// white.
+			if (voxel.type != 0)
+			{
+				color = vec4(1.0, 1.0, 1.0, 1.0);
+				break;
+			}
+
+			// If this voxel does not have children
+			// we need to ADVANCE (go to the next
+			// sibling). If this is the last child,
+			// we need to POP (go to next sibling of
+			// last voxel that had children.
+			if (voxel.children == -1)
+			{
+				if (stack[stackCursor].octant < 7)
+				{
+					// ADVANCE
+					bufferCursor++;
+					stack[stackCursor].octant++;
+					center = stack[stackCursor].cube.center + OctantTranslation(stack[stackCursor].octant, level);
+					continue;
+				}
+				
+				// POP
+				bool foundAncestor = false;
+				while (true)
+				{
+					// If the stack is all empty, break.
+					if (stackCursor == 0) break;
+
+					// Otherwise, look one further back
+					// on the stack.
+					stackCursor--;
+					level *= 2;
+					Entry ancestor = stack[stackCursor];
+					center = ancestor.cube.center + OctantTranslation(ancestor.octant, level);
+
+					// If this ancestor hasn't exhausted
+					// its octants, set that as the new
+					// target.
+					if (ancestor.octant < 7)
+					{
+						bufferCursor = ancestor.index;
+						break;
+					}
+				}
+				continue;
+			}
+			
+			// Since this has children, we need to
+			// add it to the stack.
+			stack[stackCursor] = Entry(bufferCursor, 0, cube);
+			stackCursor++;
+
+			// Now, we need to to PUSH (go to the
+			// first child).
+			bufferCursor = voxel.children;
+			level /= 2;
 		}
 	}
 

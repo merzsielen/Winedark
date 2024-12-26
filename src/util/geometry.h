@@ -73,6 +73,8 @@ namespace Winedark
 		{
 			return Quaternion{ -this->w, -this->x, -this->y, -this->z };
 		}
+
+		operator glm::vec4() { return glm::vec4(x, y, z, w); }
 	};
 
 	/*-----------------------------------------------------------------------*/
