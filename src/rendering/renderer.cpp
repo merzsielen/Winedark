@@ -27,6 +27,8 @@ namespace Winedark
 
 		if (IsUpdateNeeded())
 		{
+			octree->OverwriteBufferData();
+
 			computeShader.Use();
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, octree->GetSSBO());
 			glDispatchCompute(camera->GetWidth(), camera->GetHeight(), 1);

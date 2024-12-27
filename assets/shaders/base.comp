@@ -17,16 +17,15 @@
 struct BufferData
 {
 	uint	size;
-
 	uint	viewWidth;
 	uint	viewHeight;
+	uint	padding;
 
-	vec3	cameraPosition;
-	vec3	cameraRight;
-	vec3	cameraUp;
-	vec3	cameraForward;
-
-	vec3	centerPosition;
+	vec4	cameraPosition;
+	vec4	cameraRight;
+	vec4	cameraUp;
+	vec4	cameraForward;
+	vec4	centerPosition;
 };
 
 // ---------------------------------------------------------- //
@@ -162,9 +161,9 @@ void main()
 	float w = float(data.viewWidth);
 	float h = float(data.viewHeight);
 
-	vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 color = vec4(data.size / 128.0, 0.0, 0.0, 0.0);
 	vec2 offset = vec2(x - (w * 0.5), y - (h * 0.5));
-	Ray ray = GenerateRay(data.cameraPosition, data.cameraRight, data.cameraUp, data.cameraForward, data.centerPosition, offset);
+	Ray ray = GenerateRay(data.cameraPosition.xyz, data.cameraRight.xyz, data.cameraUp.xyz, data.cameraForward.xyz, data.centerPosition.xyz, offset);
 
 	// Okay, so we've got our ray. Now, we need to traverse the
 	// octree. For now, if we hit a leaf voxel, we set the color
@@ -178,6 +177,7 @@ void main()
 	uint bufferCursor = 0;
 	uint level = data.size;
 	vec3 center = vec3(level * 0.5, level * 0.5, level * 0.5);
+	stack[0] = Entry(0, 7, Cube(center, level));
 	
 	int numTests = 0;
 	int maxTests = 20;
@@ -188,14 +188,16 @@ void main()
 		Voxel voxel = voxels[bufferCursor];
 		center = stack[stackCursor].cube.center + OctantTranslation(stack[stackCursor].octant, level);
 		Cube cube = Cube(center, level);
-
 		vec2 collision = RayHitsCube(ray, cube);
 
 		// If the ray has collided with the cube.
 		if (collision.x < collision.y)
 		{
-			color = vec4(1.0, 1.0, 1.0, 1.0);
-			break;
+//			if (voxel.children > 0)
+//			{
+				color = vec4(1.0, 1.0, 1.0, 1.0);
+				break;
+			// }
 
 			// This means the ray passes through this
 			// voxel. We need to check if the voxel

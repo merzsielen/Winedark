@@ -69,6 +69,37 @@ namespace Winedark
 		}
 	}
 
+	/* OverwriteBufferData ------------------------------*/
+	/*
+		Just overwrites the BufferData in the ssbo
+		without touching the voxels.
+	*/
+	void Octree::OverwriteBufferData()
+	{
+		Quaternion r = camera->GetRotation();
+		glm::vec3 right = Rotate({ 1.0, 0.0,0.0 }, r);
+		glm::vec3 up = Rotate({ 0.0, 1.0,0.0 }, r);
+		glm::vec3 forward = Rotate({ 0.0, 0.0, 1.0 }, r);
+
+		glm::vec3 pos = camera->GetPosition();
+		pos.z = -camera->GetZoom();
+
+		BufferData bd = { size, camera->GetWidth(), camera->GetHeight(), 0,
+							glm::vec4(camera->GetPosition(), 0),
+							glm::vec4(right, 0),
+							glm::vec4(up, 0),
+							glm::vec4(forward, 0),
+							glm::vec4(center, 0) };
+
+		/*std::cout << "#-------------------------------------------------------------------------------------------#" << std::endl;
+		std::cout << voxels[0].type << " / " << voxels[0].children << std::endl;
+		std::cout << "#-------------------------------------------------------------------------------------------#" << std::endl;*/
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(BufferData), &bd);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	}
+
 	/* WriteBuffer --------------------------------------*/
 	/*
 		WriteBuffer writes the current voxel data to the
@@ -84,12 +115,16 @@ namespace Winedark
 		glm::vec3 pos = camera->GetPosition();
 		pos.z = -camera->GetZoom();
 
-		BufferData bd = { size, camera->GetWidth(), camera->GetHeight(),
-			camera->GetPosition(), right, up, forward, center };
+		BufferData bd = { size, camera->GetWidth(), camera->GetHeight(), 0,
+							glm::vec4(camera->GetPosition(), 0),
+							glm::vec4(right, 0),
+							glm::vec4(up, 0),
+							glm::vec4(forward, 0),
+							glm::vec4(center, 0) };
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(BufferData), &bd);
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int), nVoxels * sizeof(Voxel), voxels);
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(BufferData), nVoxels * sizeof(Voxel), voxels);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 

@@ -31,8 +31,11 @@ namespace Winedark
 		/*uint16_t type;
 		int32_t children;*/
 
-		uint32_t		type;
-		int32_t			children;
+		/*uint32_t		type;
+		int32_t			children;*/
+
+		unsigned int	type;
+		int				children;
 	};
 
 	/*-----------------------------------------------------------------------*/
@@ -46,16 +49,15 @@ namespace Winedark
 	struct BufferData
 	{
 		unsigned int	size;
-
 		unsigned int	viewWidth;
 		unsigned int	viewHeight;
+		unsigned int	padding;
 
-		glm::vec3		cameraPosition;
-		glm::vec3		cameraRight;
-		glm::vec3		cameraUp;
-		glm::vec3		cameraForward;
-
-		glm::vec3		centerPosition;
+		glm::vec4		cameraPosition;
+		glm::vec4		cameraRight;
+		glm::vec4		cameraUp;
+		glm::vec4		cameraForward;
+		glm::vec4		centerPosition;
 	};
 
 	/*-----------------------------------------------------------------------*/
@@ -117,7 +119,7 @@ namespace Winedark
 		std::vector<glm::vec3>	offsets;
 
 		/*-----------------------------------------------------*/
-		/* Buffer Functions									   */
+		/* Buffer Functions	1								   */
 		/*-----------------------------------------------------*/
 		void					WriteBuffer();
 
@@ -132,6 +134,11 @@ namespace Winedark
 		/* Flag Functions									   */
 		/*-----------------------------------------------------*/
 		bool					CheckChanged();
+
+		/*-----------------------------------------------------*/
+		/* Buffer Functions 2								   */
+		/*-----------------------------------------------------*/
+		void					OverwriteBufferData();
 
 		/*-----------------------------------------------------*/
 		/* Voxel Functions									   */

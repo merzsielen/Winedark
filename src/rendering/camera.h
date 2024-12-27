@@ -67,7 +67,7 @@ namespace Winedark
 		/*-----------------------------------------------------*/
 		/* Movement & Zoom									   */
 		/*-----------------------------------------------------*/
-		float				movementSpeed = 1000.0f;
+		float				movementSpeed = 100.0f;
 		float				zoomSpeed = 0.5f;
 
 		float				minZoom = 0.001f;
